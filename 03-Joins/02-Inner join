@@ -35,3 +35,51 @@ JOIN products ON order_details.product_id = products.product_id
 JOIN customers ON orders.customer_id = customers.customer_id
 JOIN employees ON orders.employee_id = employees.employee_id
 WHERE ship_country = 'USA';
+
+
+-- Вывести наименование продукта, наименование компании и кол-во продукта в продаже --
+
+SELECT product_name, company_name, units_in_stock
+FROM products
+JOIN suppliers USING(supplier_id)
+WHERE discontinued <> 1
+ORDER BY units_in_stock DESC;
+
+-- Сколько единиц товаров в продаже по категориям товаров --
+
+SELECT category_name, SUM(units_in_stock)
+FROM products
+JOIN categories USING(category_id)
+GROUP BY category_name
+ORDER BY SUM(units_in_stock) DESC;
+
+-- Сколько единиц товаров в продаже по категориям товаров и на какую сумму продается все --
+
+SELECT category_name, SUM(units_in_stock) AS total_units, SUM(unit_price * units_in_stock) AS total_price
+FROM products
+JOIN categories USING(category_id)
+WHERE discontinued <> 1
+GROUP BY category_name
+HAVING SUM(unit_price * units_in_stock) > 5000
+ORDER BY SUM(unit_price * units_in_stock) DESC;
+
+-- На каких работников завязаны заказы --
+
+SELECT order_id, contact_name, CONCAT(first_name, ' ', last_name) AS FIO
+FROM orders
+JOIN employees USING(employee_id)
+JOIN customers USING(customer_id);
+
+-- Дата когда был сделан заказ, какой товар, куда доставить, цену, количество и скидку, сотрудника, наименование компании доставщика, категорию товара где доставщик - United Package и доставляется товар в Бразилию, отсортировать по количеству --
+
+SELECT order_date, product_name, orders.ship_country, products.unit_price, discount, CONCAT(first_name, ' ', last_name) AS employee,
+       shippers.company_name, category_name, quantity
+FROM order_details
+LEFT JOIN orders USING(order_id)
+JOIN products USING(product_id)
+JOIN employees USING(employee_id)
+JOIN shippers ON orders.ship_via = shippers.shipper_id
+JOIN categories ON products.category_id = categories.category_id
+WHERE company_name = 'United Package' AND ship_country = 'Brazil'
+ORDER BY quantity DESC;
+
