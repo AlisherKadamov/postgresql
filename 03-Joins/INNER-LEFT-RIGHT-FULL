@@ -1,0 +1,32 @@
+-- Наименования компаний и то что они доставляют или производят -- 
+
+SELECT company_name, product_name
+FROM suppliers
+LEFT JOIN products using(supplier_id);
+-- = equals = -- 
+select company_name, product_name
+from suppliers
+join products using(supplier_id); 
+-- = equals = -- 
+select company_name, product_name
+from products
+join suppliers using(supplier_id);
+
+-- Определить компании на которых не висят никакие заказы --
+
+select company_name, order_id
+from customers
+left join orders using(customer_id)
+where order_id is null;
+
+select company_name
+from orders
+full join customers using(customer_id)
+where order_id is null;
+
+-- Есть ли работники, которые не обрабатывают никакие заказы --
+
+select concat(first_name,' ',last_name)
+from employees
+left join orders using(employee_id)
+where order_id is null;
