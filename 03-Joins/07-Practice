@@ -1,0 +1,34 @@
+--Найти заказчиков и обслуживающих их заказы сотрудников таких,
+--что и заказчики и сотрудники из города London, а доставка идёт компанией Speedy Express. Вывести компанию заказчика и ФИО сотрудника.
+
+SELECT customers.company_name, concat(first_name,' ',last_name)
+FROM orders
+JOIN customers USING (customer_id)
+JOIN employees USING(employee_id)
+LEFT JOIN shippers on shippers.shipper_id = orders.ship_via
+--JOIN shippers on orders.ship_via = shippers.shipper_id
+WHERE customers.city = 'London' and employees.city = 'London' and shippers.company_name = 'Speedy Express';
+
+--Найти активные (см. поле discontinued) продукты из категории Beverages и Seafood, которых в продаже менее 20 единиц. 
+--Вывести наименование продуктов, кол-во единиц в продаже, имя контакта поставщика и его телефонный номер.
+
+SELECT product_name, units_in_stock, concat(contact_name,' ', phone) as contact_info
+FROM products
+JOIN categories USING(category_id)
+JOIN suppliers USING(supplier_id)
+WHERE units_in_stock < 20 and category_name in ('Beverages', 'Seafood') and discontinued <>1
+ORDER BY units_in_stock DESC
+
+--Найти заказчиков, не сделавших ни одного заказа. Вывести имя заказчика и order_id.
+
+SELECT contact_name, order_id
+FROM customers
+LEFT JOIN orders on orders.customer_id = customers.customer_id
+WHERE order_id is null;
+
+--Переписать предыдущий запрос, использовав симметричный вид джойна (подсказка: речь о LEFT и RIGHT).
+
+SELECT contact_name, order_id
+FROM orders
+RIGHT JOIN customers on customers.customer_id = orders.customer_id
+WHERE order_id is null; 
